@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import api from "../services/api";
 
 import {
   FaEnvelope,
@@ -45,20 +46,12 @@ function Contact() {
     });
 
     try {
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/contact/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(form),
-        }
-      );
+      // Uses VITE_API_URL from Vercel through api.js
+      const response = await api.post("contact/", form);
 
-      const data = await response.json();
+      const data = response.data;
 
-      if (response.ok && data.success) {
+      if (data.success) {
         setStatus({
           loading: false,
           success: true,
@@ -89,7 +82,8 @@ function Contact() {
         loading: false,
         success: false,
         message:
-          "Unable to connect to the server. Please make sure the Django backend is running.",
+          error.response?.data?.message ||
+          "Unable to connect to the server. Please try again.",
       });
     }
   };
@@ -100,6 +94,7 @@ function Contact() {
       className="contact-section py-5 position-relative overflow-hidden"
     >
       <div className="container">
+
         {/* ================= HEADING ================= */}
 
         <motion.div
@@ -291,7 +286,6 @@ function Contact() {
 
                 </div>
               </div>
-
             </motion.div>
           </div>
 
@@ -325,9 +319,7 @@ function Contact() {
                     <FaExclamationTriangle />
                   )}
 
-                  <span>
-                    {status.message}
-                  </span>
+                  <span>{status.message}</span>
                 </div>
               )}
 
@@ -429,7 +421,6 @@ function Contact() {
                 </button>
 
               </form>
-
             </motion.div>
           </div>
 
